@@ -9,3 +9,5 @@ KLM
 easyJet
 Turkish Airlines
 Emirates / Qatar Airways
+
+Websocket
