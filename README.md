@@ -85,12 +85,4 @@ Filtry z boku lub na górze.
 
 Responsywność – działa na telefonach i desktopie.
 
-🧠 7. Obsługa błędów
 
-Komunikaty w przypadku:
-
-braku połączenia z API,
-
-braku dostępnych lotów,
-
-błędnie wprowadzonych danych.
