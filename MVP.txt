@@ -1,0 +1,147 @@
+🧭 1. Wyszukiwanie lotów
+
+Cel: użytkownik może wyszukać lot z miasta A do miasta B w określonym terminie.
+
+Funkcjonalności:
+
+Pola wyszukiwania:
+
+miejsce wylotu,
+
+miejsce docelowe,
+
+data wylotu (+ opcjonalnie powrotu),
+
+liczba pasażerów,
+
+wybór: bez przesiadek / z przesiadkami.
+
+Backend wykonuje zapytanie do:
+
+oficjalnych API linii lotniczych,
+
+webscraperów w przypadku linii bez publicznego API.
+
+Backend agreguje wyniki, normalizuje dane i zwraca zunifikowaną listę ofert (cena, linia, czas lotu, przesiadki).
+
+Wymagania techniczne:
+
+Mechanizm asynchronicznych zapytań 
+
+Buforowanie wyników żeby nie przekraczać limitów API.
+
+📊 2. Porównywanie i filtrowanie wyników
+
+
+
+Funkcjonalności:
+
+Sortowanie po:
+
+cenie,
+
+czasie podróży,
+
+godzinie wylotu.
+
+Filtry:
+
+liczba przesiadek (0, 1, 2+),
+
+konkretne linie lotnicze,
+
+zakres cenowy,
+
+czas trwania lotu.
+
+Możliwość wyświetlenia „tylko najtańszego lotu dla każdej linii”.
+
+Agregacja wyników z kilku źródeł w jedną, wspólną strukturę JSON.
+
+💾 3. Zapis wyszukiwania w bazie danych (PostgreSQL)
+
+Cel: przechowywanie historii wyszukiwań użytkownika i ulubionych tras.
+
+
+Możliwość odczytania poprzednich wyszukiwań danego użytkownika.
+
+Oznaczenie wyszukiwania jako „ulubione”.
+
+🌐 4. Integracja z API i webscraperami
+
+Cel: pozyskiwanie danych z różnych źródeł cenowych.
+
+Funkcjonalności:
+
+
+
+Każdy moduł zwraca dane w jednolitym formacie:
+
+
+
+
+Dla linii bez API – scraper HTML.
+
+Kolejkowanie zapytań do webscraperów, żeby nie przeciążać serwera.
+
+🧠 5. Analiza i wyszukiwanie najtańszych opcji
+
+Cel: zwracanie użytkownikowi najlepszej oferty na podstawie danych.
+
+Funkcjonalności:
+
+Algorytm selekcji:
+
+wybór minimum ceny,
+
+analiza kombinacji przesiadek (np. 2 osobne loty przez inny port),
+
+uwzględnienie czasu całkowitego podróży.
+
+W przyszłości: system rekomendacji (np. „najtańsze loty w tym miesiącu”).
+
+👤 6. Obsługa użytkowników
+
+Cel: umożliwienie personalizacji i zapisywania wyników.
+
+Funkcjonalności:
+
+Rejestracja i logowanie (JWT, OAuth2 lub klasyczne sesje).
+
+Tabela users w bazie (id, email, hasło, data rejestracji).
+
+Możliwość:
+
+przeglądania historii wyszukiwań,
+
+ponownego uruchomienia starego zapytania,
+
+zapisywania ulubionych tras.
+
+📩 7. Powiadomienia o spadku ceny (na późniejszy etap)
+
+Cel: informowanie użytkownika, gdy cena jego zapisanego lotu spadnie.
+
+Funkcjonalności:
+
+Ustawienie alertu dla zapisanej trasy.
+
+Okresowe sprawdzanie cen.
+
+Wysyłka e-maila lub notyfikacji, gdy cena < próg.
+
+💻 8. Interfejs użytkownika (frontend)
+
+Cel: prosty i czytelny dostęp do funkcji systemu.
+
+Funkcjonalności:
+
+Formularz wyszukiwania z wyborem parametrów.
+
+Widok wyników (lista ofert z ceną, linią, godziną, linkiem).
+
+Filtry boczne (cena, linia, przesiadki).
+
+Widok „Zapisane loty” (z bazy).
+
+Widok „Historia wyszukiwań”.
