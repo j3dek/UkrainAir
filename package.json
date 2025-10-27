@@ -1,0 +1,23 @@
+{
+  "name": "ukrainair",
+  "version": "1.0.0",
+  "description": ". LOT Polish Airlines (PLL LOT) Ryanair 🇭🇺 3. Wizz Air Lufthansa KLM easyJet Turkish Airlines Emirates / Qatar Airways",
+  "homepage": "https://github.com/j3dek/UkrainAir#readme",
+  "bugs": {
+    "url": "https://github.com/j3dek/UkrainAir/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/j3dek/UkrainAir.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
