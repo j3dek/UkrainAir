@@ -30,10 +30,6 @@
     <div v-if="filteredFlights.length === 0" class="no-flights">
       Brak lotów spełniających kryteria wyszukiwania
     </div>
-
-    <button @click="$router.push('/')" class="back-btn">
-      ← Powrót do strony głównej
-    </button>
   </div>
 </template>
 
@@ -182,21 +178,6 @@ h1 {
   padding: 40px;
   color: #7f8c8d;
   font-size: 1.1em;
-}
-
-.back-btn {
-  padding: 12px 24px;
-  background: #3498db;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background 0.3s ease;
-}
-
-.back-btn:hover {
-  background: #2980b9;
 }
 
 /* Responsywność */
