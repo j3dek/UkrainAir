@@ -1,7 +1,7 @@
 <template>
   <div id="flight-app">
     <header class="header-section">
-      <SearchBar />
+      <FlightSearchForm />
     </header>
 
     <main class="main-content">
@@ -17,15 +17,16 @@
 </template>
 
 <script>
-import SearchBar from './components/SearchBar.vue';
+// import SearchBar from './components/SearchBar.vue';
 import ResultsList from './components/ResultsList.vue';
 import AdSlider from './components/AdSlider.vue';
 import FlightSearchForm from './components/FlightSearchForm.vue';
 
+
 export default {
   components: {
     FlightSearchForm,
-    SearchBar,
+    // SearchBar,
     ResultsList,
     AdSlider
   },
