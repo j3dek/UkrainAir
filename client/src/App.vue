@@ -20,9 +20,11 @@
 import SearchBar from './components/SearchBar.vue';
 import ResultsList from './components/ResultsList.vue';
 import AdSlider from './components/AdSlider.vue';
+import FlightSearchForm from './components/FlightSearchForm.vue';
 
 export default {
   components: {
+    FlightSearchForm,
     SearchBar,
     ResultsList,
     AdSlider
