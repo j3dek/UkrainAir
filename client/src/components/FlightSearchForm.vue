@@ -76,11 +76,10 @@
                     <div class="form-field checkbox-field">
                         <label class="checkbox-label">
                         <input
+                            v-model="isCheckboxChecked"
                             id="ukrainiec"
                             type="checkbox"
                             class="checkbox-input"
-                            :checked="formState.isUkrainian"
-                            @click.prevent="handleCheckboxClick"
                         />
                         <span class="checkbox-custom"></span>
                         <span class="checkbox-text">Jestem Ukraińcem</span>
@@ -177,13 +176,16 @@ const today = computed(() => {
     return d.toISOString().split('T')[0];
 });
 
-const handleCheckboxClick = () => {
-    if (formState.isUkrainian) {
-        formState.isUkrainian = false;
-    } else {
-        isCaptchaVisible.value = true;
+const isCheckboxChecked = computed({
+    get: () => formState.isUkrainian,
+    set: (value) => {
+        if (value) {
+            isCaptchaVisible.value = true;
+        } else {
+            formState.isUkrainian = false;
+        }
     }
-};
+});
 
 const handleCaptchaSuccess = () => {
     isCaptchaVisible.value = false;
