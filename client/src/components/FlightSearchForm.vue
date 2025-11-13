@@ -138,6 +138,7 @@ const allCities = [
 const departureSuggestions = ref([]);
 const arrivalSuggestions = ref([]);
 let debounceTimer = null;
+let requestId = 0;
 
 const polandFlag = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjgwIDgwMCI+PGc+PHJlY3Qgd2lkdGg9IjEyODAiIGhlaWdodD0iODAwIiBmaWxsPSIjZGMxNDNkIi8+PHJlY3Qgd2lkdGg9IjEyODAiIGhlaWdodD0iNDAwIiBmaWxsPSIjZmZmIi8+PC9nPjwvc3ZnPg==';
 const ukraineFlag = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA5MDAgNjAwIj48cmVjdCB3aWR0aD0iOTAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iIzAwNTdiNyIvPjxyZWN0IHdpZHRoPSI5MDAiIGhlaWdodD0iMzAwIiB5PSIzMDAiIGZpbGw9IiNmZmM3MDAiLz48L3N2Zz4=';
@@ -145,7 +146,12 @@ const ukraineFlag = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53M
 
 const onCityInput = (field, query) => {
     clearTimeout(debounceTimer);
+    const currentRequestId = ++requestId;
     debounceTimer = setTimeout(() => {
+        if (currentRequestId !== requestId) {
+            // Ignore stale results
+            return;
+        }
         if (query.length === 0) {
             if (field === 'departure') departureSuggestions.value = [];
             else arrivalSuggestions.value = [];
