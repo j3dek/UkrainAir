@@ -264,7 +264,7 @@ const submitForm = async () => {
     min-height: 400px;
     font-family: sans-serif;
 }
-h1 {
+.flight-search-form-background h1 {
     color: white;
     margin-bottom: 30px;
     text-align: center;
