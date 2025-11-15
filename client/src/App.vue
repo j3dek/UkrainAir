@@ -1,40 +1,29 @@
 <template>
   <div id="app">
-    <nav class="main-nav">
-     
-     
-    </nav>
-    <router-view></router-view>
+    <AppHeader />
+    <main>
+      <router-view />
+    </main>
+    <AppFooter />
   </div>
 </template>
 
 <script>
+import AppHeader from './components/Header.vue'
+import AppFooter from './components/Footer.vue'
+
 export default {
-  name: 'App'
+  name: 'App',
+  components: {
+    AppHeader,
+    AppFooter
+  }
 }
 </script>
 
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-#app {
-  font-family: Arial, sans-serif;
-}
-
-
-
-.nav-link {
-  color: white;
-  text-decoration: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  transition: background-color 0.3s;
-}
-
-
-
+* { box-sizing: border-box; }
+body, html, #app { height: 100%; margin: 0; }
+#app { font-family: Arial, sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+main { flex: 1; }
 </style>
