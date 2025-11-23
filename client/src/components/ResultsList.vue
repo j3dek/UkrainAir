@@ -1,10 +1,13 @@
 <template>
-  <div class="results-grid">
-    <FlightCard 
-      v-for="flight in flights" 
-      :key="flight.id" 
-      :flight-data="flight"
-    />
+  <div class="results-list-container">
+  <h2>Dostępne loty ({{ flights.length }})</h2>
+    <div class="flights-stack">
+      <FlightCard 
+        v-for="flight in flights" 
+        :key="flight.id" 
+        :flight-data="flight"
+      />
+    </div>
   </div>
 </template>
 
@@ -32,4 +35,11 @@ export default {
   gap: 20px;
   padding: 20px 0;
 }
+
+.flights-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
 </style>

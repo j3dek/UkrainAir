@@ -3,7 +3,7 @@
     <h1>Z nami znajdziesz ucieczke</h1>
         <div class="flight-search-form">
             <form @submit.prevent="handleSearchClick">
-                <div class="form-grid">
+                <div class="form-row">
                     <div class="form-field-wrapper">
                         <label for="departure">Miasto Wylotu</label>
                         <input
@@ -49,7 +49,8 @@
                             </li>
                         </ul>
                     </div>
-
+                </div>
+                <div class="form-row">
                     <div class="form-field-wrapper">
                         <label for="departure-date">Data Wylotu</label>
                         <input

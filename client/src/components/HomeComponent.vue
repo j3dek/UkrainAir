@@ -1,12 +1,17 @@
 <template>
   <div id="flight-app">
     <header class="header-section">
-      <FlightSearchForm />
+      <div class="header-content">
+        <div class="logo">UkrainAir</div>
+        <FlightSearchForm />
+      </div>
     </header>
 
     <main class="main-content">
-      <h2>Dostępne loty ({{ mockFlights.length }})</h2>
-      <ResultsList :flights="mockFlights" />
+      <div class="results-container">
+        <FiltersComponent />
+        <ResultsList :flights="mockFlights" />
+      </div>
     </main>
 
     <section class="ad-section">
@@ -19,6 +24,7 @@
 <script>
 import ResultsList from './ResultsList.vue';
 import AdSlider from './AdSlider.vue';
+import FiltersComponent from './FiltersComponent.vue';
 import FlightSearchForm from './FlightSearchForm.vue';
 
 export default {
@@ -26,6 +32,7 @@ export default {
   components: {
     FlightSearchForm,
     ResultsList,
+    FiltersComponent,
     AdSlider
   },
   data() {
@@ -48,13 +55,33 @@ export default {
 }
 
 .header-section {
-  margin-bottom: 20px;
+  background: linear-gradient(to bottom, #0057B7 0%, #0057B7 50%, #FFD700 50%, #FFD700 100%);
+  padding: 40px 20px;
+  color: white;
+  position: relative;
+  border-bottom-right-radius: 25px;
 }
 
-.main-content h2 {
-    margin-bottom: 15px;
-    color: #333;
-    margin: 10px;
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.main-content {
+  width: 100%;
+  max-width: 1200px;
+  margin: 50px auto 0 auto;
+  position: relative;
+  z-index: 2;
+  padding: 0 20px;
+  box-sizing: border-box
+}
+
+.results-container {
+  display: grid;
+  grid-template-columns: 280px 1fr; 
+  gap: 20px;
+  align-items: flex-start;
 }
 
 .ad-section {
