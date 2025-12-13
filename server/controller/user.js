@@ -9,6 +9,9 @@ if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 12) {
 }
 const JWT_SECRET = process.env.JWT_SECRET;
 
+// Shared email validation regex
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 const addUser = async (userData) => {
     try {
         // Check if user with this email already exists
