@@ -1,24 +1,24 @@
 <template>
   <header class="site-header">
     <div class="container">
-          <div class="brand">
-            <span class="logo-emoji" role="img" aria-label="plane">✈️</span>
-            <span class="title">UkrainAir</span>
-          </div>
+      <div class="brand">
+        <span class="logo-emoji" role="img" aria-label="plane">✈️</span>
+        <span class="title">UkrainAir</span>
+      </div>
 
       <nav class="nav">
-        <a class="nav-link" href="#/">Strona główna</a>
-        <a class="nav-link" href="#/about">O nas</a>
-        <a class="nav-link" href="#/saved">Zapisane</a>
+        <router-link class="nav-link" to="/">Strona główna</router-link>
+        <router-link class="nav-link" to="/about">O nas</router-link>
+        <router-link class="nav-link" to="/saved">Zapisane</router-link>
       </nav>
 
       <div class="actions">
         <button class="cta" @click="$router.push('/login')">Zaloguj</button>
-
       </div>
     </div>
   </header>
 </template>
+
 
 <script>
 export default {
