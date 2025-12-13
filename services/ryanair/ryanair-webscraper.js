@@ -134,8 +134,6 @@ class RyanairScraper {
         }
     }
     async getFlightsByCities (from, to, date_depart, date_return){
-        date_depart = date_depart;
-        date_return = date_return;
         let codes = await this.getCityCodeFromCsv(from,to);
         console.log(codes);
         let fromCodes = codes.fromCodes;
