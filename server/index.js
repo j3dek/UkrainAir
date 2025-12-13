@@ -3,11 +3,21 @@ const cors = require('cors')
 require('dotenv').config();
 const app = express()
 const port = process.env.PORT
-const { User } = require('./router/database')
 const { addUser, getUsers, loginUser } = require('./controller/user');
 
-// Włącz CORS dla wszystkich źródeł
-app.use(cors());
+// Configure CORS to allow only trusted origins from environment variable
+const allowedOrigins = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : [];
+app.use(cors({
+  origin: function (origin, callback) {
+    // allow requests with no origin (like mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('Not allowed by CORS'));
+    }
+  }
+}));
 app.use(express.json());
 
 app.get('/', (req,res) => {
@@ -25,6 +35,12 @@ app.get('/users', async (req, res) => {
 
 app.post('/api/register', async (req, res) => {
     try {
+        // Input validation
+        const { name, email, password } = req.body;
+        if (!name || !email || !password) {
+            return res.status(400).json({ error: 'Wszystkie pola (name, email, password) są wymagane' });
+        }
+        
         const user = await addUser(req.body);
         res.status(201).json(user);
     } catch (err) {
@@ -34,7 +50,12 @@ app.post('/api/register', async (req, res) => {
 
 app.post('/api/login', async (req, res) => {
     try {
+        // Input validation
         const { email, password } = req.body;
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Email i hasło są wymagane' });
+        }
+        
         const result = await loginUser(email, password);
         res.status(200).json({
             message: 'Zalogowano pomyślnie!',
