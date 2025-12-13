@@ -6,6 +6,7 @@ const app = express()
 const port = process.env.PORT || 3000
 require('./router/database'); // Import połączenia z MongoDB
 const { addUser, getUsers, loginUser } = require('./controller/user');
+const { scrapeFlights } = require('../services/ryanair/ryanair-webscraper.js');
 
 // Configure CORS - allow all origins in development
 app.use(cors());
