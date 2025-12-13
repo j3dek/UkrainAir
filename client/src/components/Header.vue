@@ -21,7 +21,7 @@
 
 <script>
 export default {
-  name: 'AppHeader'
+  name: 'Header'
 }
 </script>
 
