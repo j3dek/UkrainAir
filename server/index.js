@@ -26,23 +26,24 @@ app.post('/api/register', async (req, res) => {
     try {
         const { name, email, password, age } = req.body;
 
-        // Validate required fields are present and are strings
+        // Validate required fields are present
         if (!name || !email || !password) {
             return res.status(400).json({ 
                 error: 'All fields are required: name, email, and password' 
             });
         }
 
+        // Validate field types
         if (typeof name !== 'string' || typeof email !== 'string' || typeof password !== 'string') {
             return res.status(400).json({ 
-                error: 'All fields must be strings' 
+                error: 'Name, email, and password must be strings' 
             });
         }
 
-        // Validate fields are not empty strings
+        // Validate fields are not empty
         if (name.trim() === '' || email.trim() === '' || password.trim() === '') {
             return res.status(400).json({ 
-                error: 'Fields cannot be empty' 
+                error: 'Name, email, and password cannot be empty' 
             });
         }
 
@@ -54,14 +55,14 @@ app.post('/api/register', async (req, res) => {
             });
         }
 
-        // Validate password length (minimum 6 characters, after trimming)
+        // Validate password length
         if (password.trim().length < 6) {
             return res.status(400).json({ 
                 error: 'Password must be at least 6 characters long' 
             });
         }
 
-        // Validate age if provided (optional field)
+        // Validate age if provided
         if (age !== undefined) {
             if (typeof age !== 'number' || !Number.isInteger(age)) {
                 return res.status(400).json({ 
