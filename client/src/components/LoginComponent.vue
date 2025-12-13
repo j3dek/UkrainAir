@@ -54,8 +54,8 @@ export default {
       this.loading = true
 
       try {
-        const apiBaseUrl = process.env.VUE_APP_API_BASE_URL;
-        const loginUrl = apiBaseUrl ? `${apiBaseUrl}/api/login` : '/api/login';
+        const apiBaseUrl = process.env.VUE_APP_API_BASE_URL || 'http://localhost:3000';
+        const loginUrl = `${apiBaseUrl}/api/login`;
         const response = await fetch(loginUrl, {
           method: 'POST',
           headers: {
