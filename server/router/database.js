@@ -3,7 +3,10 @@ require('dotenv').config();
 
 mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log("Połączono z MongoDB!"))
-    .catch(err => console.error("Błąd połączenia:", err));
+    .catch(err => {
+        console.error("Błąd połączenia:", err);
+        process.exit(1);
+    });
 
 const Schema = mongoose.Schema;
 
