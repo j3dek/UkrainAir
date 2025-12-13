@@ -61,6 +61,20 @@ app.post('/api/register', async (req, res) => {
             });
         }
 
+        // Validate age if provided (optional field)
+        if (age !== undefined) {
+            if (typeof age !== 'number' || !Number.isInteger(age)) {
+                return res.status(400).json({ 
+                    error: 'Age must be a valid integer' 
+                });
+            }
+            if (age < 0 || age > 150) {
+                return res.status(400).json({ 
+                    error: 'Age must be between 0 and 150' 
+                });
+            }
+        }
+
         // Pass only validated fields to addUser
         const userData = { name, email, password };
         if (age !== undefined) {
