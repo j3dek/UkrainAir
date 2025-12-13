@@ -21,16 +21,13 @@
 
 <script>
 export default {
-  name: 'Header'
+  name: 'AppHeader'
 }
 </script>
 
 <style scoped>
-:root {
-  --main-gradient: linear-gradient(90deg, #0057b7 0%, #003f8a 100%);
-}
 .site-header {
-  background: var(--main-gradient);
+  background: linear-gradient(90deg, #0057b7 0%, #003f8a 100%);
   color: white;
   padding: 12px 0;
 }
