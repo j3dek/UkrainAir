@@ -94,8 +94,8 @@ export default {
       this.loading = true
 
       try {
-        const apiBaseUrl = process.env.VUE_APP_API_BASE_URL;
-        const registerUrl = apiBaseUrl ? `${apiBaseUrl}/api/register` : '/api/register';
+        const apiBaseUrl = process.env.VUE_APP_API_BASE_URL || 'http://localhost:3000';
+        const registerUrl = `${apiBaseUrl}/api/register`;
         const response = await fetch(registerUrl, {
           method: 'POST',
           headers: {

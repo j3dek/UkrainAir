@@ -1,12 +1,11 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 const { User } = require('../router/database');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-// Validate JWT_SECRET
-if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 12) {
-    throw new Error('JWT_SECRET environment variable must be set and at least 12 characters long.');
-}
+
+
 const JWT_SECRET = process.env.JWT_SECRET;
 
 // Shared email validation regex

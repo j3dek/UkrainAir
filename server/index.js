@@ -1,30 +1,14 @@
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 const express = require('express')
 const cors = require('cors')
-require('dotenv').config();
 const app = express()
-const port = process.env.PORT
+const port = process.env.PORT || 3000
+require('./router/database'); // Import połączenia z MongoDB
 const { addUser, getUsers, loginUser } = require('./controller/user');
 
-// Configure CORS to allow only trusted origins from environment variable
-const allowedOrigins = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : [];
-const allowNoOrigin = process.env.ALLOW_NO_ORIGIN === 'true';
-
-if (allowedOrigins.length === 0 && !allowNoOrigin) {
-    console.warn('Warning: CORS_ORIGIN not set. For production, set CORS_ORIGIN to allowed origins.');
-}
-
-app.use(cors({
-  origin: function (origin, callback) {
-    // allow requests with no origin only if explicitly configured
-    if (!origin && allowNoOrigin) return callback(null, true);
-    if (!origin && allowedOrigins.length === 0) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      return callback(null, true);
-    } else {
-      return callback(new Error('Not allowed by CORS'));
-    }
-  }
-}));
+// Configure CORS - allow all origins in development
+app.use(cors());
 app.use(express.json());
 
 app.get('/', (req,res) => {
