@@ -26,10 +26,16 @@ app.post('/api/register', async (req, res) => {
     try {
         const { name, email, password } = req.body;
 
-        // Validate required fields are present
+        // Validate required fields are present and are strings
         if (!name || !email || !password) {
             return res.status(400).json({ 
                 error: 'All fields are required: name, email, and password' 
+            });
+        }
+
+        if (typeof name !== 'string' || typeof email !== 'string' || typeof password !== 'string') {
+            return res.status(400).json({ 
+                error: 'All fields must be strings' 
             });
         }
 
