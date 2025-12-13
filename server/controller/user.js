@@ -18,7 +18,13 @@ const addUser = async (userData) => {
 
         await user.save();
         console.log('Użytkownik zapisany!');
-        return user; 
+        // Return user data excluding the password
+        return {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            age: user.age
+        };
     } catch (err) {
         console.error('Błąd przy dodawaniu użytkownika:', err);
         throw err;
