@@ -239,28 +239,35 @@ const submitForm = async () => {
         ukrainiec: formState.isUkrainian
     };
 
-    console.log('Szukaj lotu z:', JSON.stringify(payload, null, 2));
+    
 
     try {
-        const response = await fetch('https://api.example.com/flights/search', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
+        
+        const response = await fetch('http://localhost:3000/api/flights/search', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
         });
 
         if (!response.ok) {
-        throw new Error(`Błąd serwera: ${response.status}`);
+            const errorData = await response.json();
+            throw new Error(errorData.error || `Błąd serwera: ${response.status}`);
         }
 
         const data = await response.json();
-        console.log('Odpowiedź z serwera:', data);
-        alert('Weryfikacja pomyślna! Wyszukiwanie zakończone. Sprawdź konsolę.');
+        console.log(data);
+        
+        if (data.flights && data.flights.length > 0) {
+            alert(`Znaleziono`);
+        } else {
+            alert('Nie ma');
+        }
 
     } catch (error) {
         console.error('Błąd podczas wysyłania zapytania:', error);
-        errorMessage.value = 'Wystąpił błąd podczas wyszukiwania lotów. Spróbuj ponownie.';
+        errorMessage.value = error.message || 'Wystąpił błąd podczas wyszukiwania lotów. Spróbuj ponownie.';
     }
 };
 </script>
