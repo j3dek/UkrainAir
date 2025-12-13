@@ -24,6 +24,37 @@ app.get('/users', async (req, res) => {
 
 app.post('/api/register', async (req, res) => {
     try {
+        const { name, email, password } = req.body;
+
+        // Validate required fields are present
+        if (!name || !email || !password) {
+            return res.status(400).json({ 
+                error: 'All fields are required: name, email, and password' 
+            });
+        }
+
+        // Validate fields are not empty strings
+        if (name.trim() === '' || email.trim() === '' || password.trim() === '') {
+            return res.status(400).json({ 
+                error: 'Fields cannot be empty' 
+            });
+        }
+
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ 
+                error: 'Invalid email format' 
+            });
+        }
+
+        // Validate password length (minimum 6 characters)
+        if (password.length < 6) {
+            return res.status(400).json({ 
+                error: 'Password must be at least 6 characters long' 
+            });
+        }
+
         const user = await addUser(req.body);
         res.status(201).json(user);
     } catch (err) {
