@@ -24,7 +24,7 @@ app.get('/users', async (req, res) => {
 
 app.post('/api/register', async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { name, email, password, age } = req.body;
 
         // Validate required fields are present and are strings
         if (!name || !email || !password) {
@@ -54,14 +54,20 @@ app.post('/api/register', async (req, res) => {
             });
         }
 
-        // Validate password length (minimum 6 characters)
-        if (password.length < 6) {
+        // Validate password length (minimum 6 characters, after trimming)
+        if (password.trim().length < 6) {
             return res.status(400).json({ 
                 error: 'Password must be at least 6 characters long' 
             });
         }
 
-        const user = await addUser(req.body);
+        // Pass only validated fields to addUser
+        const userData = { name, email, password };
+        if (age !== undefined) {
+            userData.age = age;
+        }
+        
+        const user = await addUser(userData);
         res.status(201).json(user);
     } catch (err) {
         res.status(500).json({ error: err.message });
