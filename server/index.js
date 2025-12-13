@@ -1,11 +1,13 @@
 const express = require('express')
+const cors = require('cors')
 require('dotenv').config();
 const app = express()
 const port = process.env.PORT
 const { User } = require('./router/database')
 const { addUser, getUsers, loginUser } = require('./controller/user');
 
-
+// Włącz CORS dla wszystkich źródeł
+app.use(cors());
 app.use(express.json());
 
 app.get('/', (req,res) => {
@@ -21,7 +23,7 @@ app.get('/users', async (req, res) => {
     }
 });
 
-app.post('/register', async (req, res) => {
+app.post('/api/register', async (req, res) => {
     try {
         const user = await addUser(req.body);
         res.status(201).json(user);
@@ -30,14 +32,17 @@ app.post('/register', async (req, res) => {
     }
 });
 
-app.post('/login', async (req, res) => {
+app.post('/api/login', async (req, res) => {
     try {
         const { email, password } = req.body;
-        console.log('help');
-        const token  = await loginUser(email, password);
-        res.status(200).json({ message: 'Zalogowano pomyślnie!', token });
+        const result = await loginUser(email, password);
+        res.status(200).json({
+            message: 'Zalogowano pomyślnie!',
+            token: result.token,
+            user: result.user
+        });
     } catch (err) {
-        res.status(400).json({ error: err.message });
+        res.status(400).json({ message: err.message });
     }
 });
 

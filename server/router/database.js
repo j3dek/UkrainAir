@@ -16,7 +16,4 @@ const UserSchema = new Schema({
 
 const User = mongoose.model('User', UserSchema);
 
-const user = new User({ name: 'Jan', email: 'jan@example.com', age: 25, password : 'Password123' });
-user.save().then(() => console.log("Użytkownik zapisany!"));
-
 module.exports = { User };
