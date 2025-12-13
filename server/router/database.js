@@ -9,9 +9,19 @@ const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
     name: String,
-    email: String,
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+        index: true,
+        match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Please fill a valid email address']
+    },
     age: Number,
-    password: String
+    password: {
+        type: String,
+        required: true,
+        select: false
+    }
 });
 
 const User = mongoose.model('User', UserSchema);
