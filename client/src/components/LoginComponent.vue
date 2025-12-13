@@ -54,8 +54,9 @@ export default {
       this.loading = true
 
       try {
-       
-        const response = await fetch('http://localhost:3000/api/login', {
+        const apiBaseUrl = process.env.VUE_APP_API_BASE_URL;
+        const loginUrl = apiBaseUrl ? `${apiBaseUrl}/api/login` : '/api/login';
+        const response = await fetch(loginUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -69,7 +70,8 @@ export default {
         const data = await response.json()
 
         if (response.ok) {
-          // Token w localstorage bo niechcemisie 
+          // Store the authentication token in localStorage for session management
+          // Note: Using localStorage for JWT tokens can be vulnerable to XSS attacks
           localStorage.setItem('token', data.token)
           localStorage.setItem('user', JSON.stringify(data.user))
           
