@@ -13,7 +13,8 @@
       </nav>
 
       <div class="actions">
-        <button class="cta">Zaloguj</button>
+        <button class="cta" @click="$router.push('/login')">Zaloguj</button>
+
       </div>
     </div>
   </header>
