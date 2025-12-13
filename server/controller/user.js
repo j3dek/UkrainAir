@@ -4,6 +4,9 @@ const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET;
 require('dotenv').config();
 
+// Shared email validation regex
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 const addUser = async (userData) => {
     try {
         // Input validation before processing
@@ -14,8 +17,7 @@ const addUser = async (userData) => {
         }
 
         // Email format validation
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(userData.email)) {
+        if (!EMAIL_REGEX.test(userData.email)) {
             const error = new Error("Nieprawidłowy format adresu email");
             error.type = 'VALIDATION_ERROR';
             throw error;
@@ -67,8 +69,7 @@ const loginUser = async (email, password) => {
     }
 
     // Basic email format validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!EMAIL_REGEX.test(email)) {
         const error = new Error("Nieprawidłowy format adresu email");
         error.type = 'VALIDATION_ERROR';
         throw error;
