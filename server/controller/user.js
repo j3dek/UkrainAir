@@ -33,7 +33,6 @@ const addUser = async (userData) => {
 
         await user.save();
         console.log('Użytkownik zapisany!');
-        
         // Return user data excluding the password
         return {
             _id: user._id,
