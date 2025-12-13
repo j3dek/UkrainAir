@@ -18,7 +18,8 @@ const addUser = async (userData) => {
         }
 
         let saltRounds = parseInt(process.env.saltRounds, 10);
-        if (isNaN(saltRounds) || saltRounds <= 0) {
+        if (isNaN(saltRounds) || saltRounds < 10) {
+            console.warn('Invalid saltRounds value. Using secure default of 10.');
             saltRounds = 10;
         }
         const hashedPassword = await bcrypt.hash(userData.password, saltRounds);
