@@ -6,6 +6,28 @@ require('dotenv').config();
 
 const addUser = async (userData) => {
     try {
+        // Input validation before processing
+        if (!userData.email || !userData.password) {
+            const error = new Error("Email i hasło są wymagane");
+            error.type = 'VALIDATION_ERROR';
+            throw error;
+        }
+
+        // Email format validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(userData.email)) {
+            const error = new Error("Nieprawidłowy format adresu email");
+            error.type = 'VALIDATION_ERROR';
+            throw error;
+        }
+
+        // Name validation
+        if (!userData.name || userData.name.trim().length === 0) {
+            const error = new Error("Imię jest wymagane");
+            error.type = 'VALIDATION_ERROR';
+            throw error;
+        }
+
         const saltRounds = parseInt(process.env.saltRounds, 10);
         const hashedPassword = await bcrypt.hash(userData.password, saltRounds);
 
@@ -37,6 +59,22 @@ const getUsers = async () => {
 
 
 const loginUser = async (email, password) => {
+    // Input validation before database queries
+    if (!email || !password) {
+        const error = new Error("Email i hasło są wymagane");
+        error.type = 'VALIDATION_ERROR';
+        throw error;
+    }
+
+    // Basic email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        const error = new Error("Nieprawidłowy format adresu email");
+        error.type = 'VALIDATION_ERROR';
+        throw error;
+    }
+
+    // Database query for authentication
     const user = await User.findOne({ email });
     if (!user) {
         throw new Error("Nieprawidłowy email lub hasło");

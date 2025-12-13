@@ -27,7 +27,9 @@ app.post('/api/register', async (req, res) => {
         const user = await addUser(req.body);
         res.status(201).json(user);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        // Return 400 for validation errors, 500 for server errors
+        const statusCode = err.type === 'VALIDATION_ERROR' ? 400 : 500;
+        res.status(statusCode).json({ error: err.message });
     }
 });
 
@@ -41,7 +43,9 @@ app.post('/api/login', async (req, res) => {
             user: result.user
         });
     } catch (err) {
-        res.status(400).json({ message: err.message });
+        // Return 400 for validation errors, 401 for authentication failures
+        const statusCode = err.type === 'VALIDATION_ERROR' ? 400 : 401;
+        res.status(statusCode).json({ message: err.message });
     }
 });
 
