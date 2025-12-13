@@ -24,6 +24,8 @@ app.get('/users', async (req, res) => {
     }
 });
 
+
+
 app.post('/api/register', async (req, res) => {
     try {
         // Input validation
@@ -38,6 +40,43 @@ app.post('/api/register', async (req, res) => {
         // Return 400 for validation errors, 500 for server errors
         const statusCode = err.type === 'VALIDATION_ERROR' ? 400 : 500;
         res.status(statusCode).json({ error: err.message });
+    }
+});
+app.post('/api/flights/search', async (req, res) => {
+    try {
+        const { departure, arrival, departureDate, returnDate, ukrainiec } = req.body;
+
+        // Walidacja
+        if (!departure || !arrival || !departureDate) {
+            return res.status(400).json({ 
+                error: 'Brakuje wymaganych pól: departure, arrival, departureDate' 
+            });
+        }
+
+        if (!ukrainiec) {
+            return res.status(403).json({ 
+                error: 'Tylko dla zweryfikowanych Ukraińców' 
+            });
+        }
+
+        // console.log(`Szukam lotów: ${departure} -> ${arrival}, ${departureDate} - ${returnDate || 'bez powrotu'}`);
+
+        // Wywołaj scraper
+        const flights = await scrapeFlights(departure, arrival, departureDate, returnDate);
+
+        res.json({
+            success: true,
+            count: flights.length,
+            flights: flights,
+            searchParams: { departure, arrival, departureDate, returnDate }
+        });
+
+    } catch (error) {
+        console.error('Błąd podczas wyszukiwania lotów:', error);
+        res.status(500).json({ 
+            error: 'Wystąpił błąd podczas wyszukiwania lotów',
+            details: error.message 
+        });
     }
 });
 
