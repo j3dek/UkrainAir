@@ -111,17 +111,18 @@ class LufthansaPlaywrightScraper {
 
     await this.waitForFlightsToLoad(page);
 
-    const selectedDayInfo = await this.getSelectedDayInfo(page);
-    console.log('Zaznaczony dzień:', selectedDayInfo);
+    // const selectedDayInfo = await this.getSelectedDayInfo(page);
+    // console.log('Zaznaczony dzień:', selectedDayInfo);
 
-    const flights = await this.scrapeFlightsFromCurrentView(page, {
-      fromCity,
-      toCity,
-      departureDate,
-      returnDate,
-    }, selectedDayInfo);
+    // const flights = await this.scrapeFlightsFromCurrentView(page, {
+    //   fromCity,
+    //   toCity,
+    //   departureDate,
+    //   returnDate,
+    // }, selectedDayInfo);
 
-    return flights;
+    // return flights;
+    return 1;
   }
 
   async waitForFlightsToLoad(page) {
@@ -282,6 +283,7 @@ class LufthansaPlaywrightScraper {
   }
 }
 
+// Uruchomienie z linii komend: node services/lufthansa/lufthansa-scraper.js
 if (require.main === module) {
   (async () => {
     try {
@@ -289,8 +291,8 @@ if (require.main === module) {
       const flights = await scraper.getFlightsByCities(
         'Warszawa',
         'Londyn',
-        '10.12.2025',
-        '27.12.2025'
+        '27.12.2025',
+        '29.12.2025'
       );
 
       console.log('\n' + '='.repeat(50));
