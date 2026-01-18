@@ -117,7 +117,9 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, defineEmits } from 'vue';
+
+const emit = defineEmits(['search-results', 'search-loading']);
 
 const formState = reactive({
     departureCity: '',
@@ -239,7 +241,7 @@ const submitForm = async () => {
         ukrainiec: formState.isUkrainian
     };
 
-    
+    emit('search-loading', true);
 
     try {
         
@@ -259,15 +261,25 @@ const submitForm = async () => {
         const data = await response.json();
         console.log(data);
         
-        if (data.flights && data.flights.length > 0) {
-            alert(`Znaleziono`);
-        } else {
-            alert('Nie ma');
-        }
+        // Transform flights data to match FlightCard format
+        const transformedFlights = (data.flights || []).map((flight, index) => ({
+            id: index + 1,
+            from: flight.originCity || flight.route?.split(' -> ')[0] || 'N/A',
+            to: flight.destinationCity || flight.route?.split(' -> ')[1] || 'N/A',
+            time: `${flight.departureTime || 'N/A'} - ${flight.arrivalTime || 'N/A'}`,
+            price: flight.price ? parseFloat(flight.price.replace(/[^0-9.,]/g, '').replace(',', '.')) || flight.price : 'N/A',
+            airline: 'Ryanair',
+            duration: flight.duration || 'N/A',
+            flightNumber: flight.flightNumber || 'N/A',
+            date: flight.date || formState.departureDate
+        }));
+        
+        emit('search-results', transformedFlights);
 
     } catch (error) {
         console.error('Błąd podczas wysyłania zapytania:', error);
         errorMessage.value = error.message || 'Wystąpił błąd podczas wyszukiwania lotów. Spróbuj ponownie.';
+        emit('search-loading', false);
     }
 };
 </script>

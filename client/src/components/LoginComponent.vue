@@ -75,6 +75,8 @@ export default {
           localStorage.setItem('token', data.token)
           localStorage.setItem('user', JSON.stringify(data.user))
           
+          // Notify other components about auth change
+          window.dispatchEvent(new Event('auth-changed'))
           
           this.$router.push('/')
         } else {

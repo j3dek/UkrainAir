@@ -1,12 +1,26 @@
 <template>
   <div id="flight-app">
     <header class="header-section">
-      <FlightSearchForm />
+      <FlightSearchForm @search-results="handleSearchResults" @search-loading="handleSearchLoading" />
     </header>
 
     <main class="main-content">
-      <h2>Dostępne loty ({{ mockFlights.length }})</h2>
-      <ResultsList :flights="mockFlights" />
+      <div v-if="isLoading" class="loading-container">
+        <div class="loader"></div>
+        <p>Szukam lotów... To może chwilę potrwać.</p>
+      </div>
+      
+      <div v-else-if="hasSearched">
+        <h2 v-if="flights.length > 0">Znalezione loty ({{ flights.length }})</h2>
+        <h2 v-else>Nie znaleziono lotów</h2>
+        <p v-if="flights.length === 0" class="no-results">Spróbuj zmienić parametry wyszukiwania.</p>
+        <ResultsList :flights="flights" />
+      </div>
+      
+      <div v-else>
+        <h2>Wyszukaj loty</h2>
+        <p class="info-text">Wprowadź dane powyżej, aby znaleźć najlepsze połączenia lotnicze.</p>
+      </div>
     </main>
 
     <section class="ad-section">
@@ -30,12 +44,22 @@ export default {
   },
   data() {
     return {
-      mockFlights: [
-        { id: 1, from: 'WAW', to: 'KRK', time: '08:00', price: 300, airline: 'LOT' },
-        { id: 2, from: 'GDK', to: 'WRC', time: '12:30', price: 500, airline: 'Ryanair' },
-        { id: 3, from: 'WAW', to: 'PZN', time: '16:00', price: 200, airline: 'Wizz' },
-        { id: 4, from: 'PZN', to: 'GDK', time: '20:15', price: 500, airline: 'LOT' },
-      ]
+      flights: [],
+      isLoading: false,
+      hasSearched: false
+    }
+  },
+  methods: {
+    handleSearchResults(results) {
+      this.flights = results;
+      this.hasSearched = true;
+      this.isLoading = false;
+    },
+    handleSearchLoading(loading) {
+      this.isLoading = loading;
+      if (loading) {
+        this.flights = [];
+      }
     }
   }
 }
@@ -51,10 +75,49 @@ export default {
   margin-bottom: 20px;
 }
 
+.main-content {
+  padding: 20px;
+}
+
 .main-content h2 {
     margin-bottom: 15px;
     color: #333;
     margin: 10px;
+}
+
+.info-text {
+  color: #666;
+  text-align: center;
+  margin: 20px;
+}
+
+.no-results {
+  color: #666;
+  text-align: center;
+  margin: 20px;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+}
+
+.loader {
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #0057B7;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .ad-section {
