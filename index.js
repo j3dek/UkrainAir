@@ -1,7 +1,9 @@
 const express = require('express');
 const cors = require('cors');
+const axios = require('axios');
 const { scrapeFlights } = require('./services/ryanair/ryanair-webscraper');
-const { LufthansaScraper } = require('./services/lufthansa/lufthansa-scraper');
+const { LufthansaPlaywrightScraper } = require('./services/lufthansa/lufthansa-scraper');
+const {TurkishPlaywrightScraper} = require('./services/turkish/turkish-scraper');
 
 const app = express();
 const port = 3000;
@@ -36,8 +38,18 @@ app.post('/api/flights/search', async (req, res) => {
         // console.log(`Szukam lotów: ${departure} -> ${arrival}, ${departureDate} - ${returnDate || 'bez powrotu'}`);
 
         // Wywołaj scraper
-        const flights = await scrapeFlights(departure, arrival, departureDate, returnDate);
+        const scraper = new LufthansaScraper();
+        const Ryanairflights = await scrapeFlights(departure, arrival, departureDate, returnDate);
+        const lufthansaFlights = await scraper.getFlightsByCities(departure, arrival, departureDate, returnDate);
+        const scraper2 = new TurkishPlaywrightScraper();
+        const TurkishFlights = await scraper2.getFlightsByCities(departure, arrival, departureDate, returnDate);
         
+        // Połącz wszystkie loty z trzech źródeł
+        const flights = [
+            ...(Array.isArray(Ryanairflights) ? Ryanairflights : []),
+            ...(Array.isArray(lufthansaFlights) ? lufthansaFlights : []),
+            ...(Array.isArray(TurkishFlights) ? TurkishFlights : [])
+        ];
 
         res.json({
             success: true,
@@ -55,38 +67,54 @@ app.post('/api/flights/search', async (req, res) => {
     }
 });
 
-app.post('/api/flights/search-lufthansa', async (req, res) => {
+app.get('/api/flight/:flightNumber', async (req, res) => {
+  const flightNumber = req.params.flightNumber.toUpperCase().trim();
+  
   try {
-    const { departure, arrival, departureDate, returnDate, ukrainiec } = req.body;
-
-    if (!departure || !arrival || !departureDate) {
-      return res.status(400).json({
-        error: 'Brakuje wymaganych pól: departure, arrival, departureDate'
+    const openSkyResponse = await axios.get(
+      'https://opensky-network.org/api/states/all',
+      { timeout: 5000 }
+    );
+    
+    const aircraft = openSkyResponse.data.states?.find(state => 
+      state[1]?.trim().toUpperCase() === flightNumber
+    );
+    
+    if (aircraft) {
+      return res.json({
+        flightNumber: flightNumber,
+        latitude: aircraft[6],
+        longitude: aircraft[5],
+        altitude: aircraft[7],
+        velocity: aircraft[9],
+        heading: aircraft[10],
+        verticalRate: aircraft[11],
+        onGround: aircraft[8],
+        icao24: aircraft[0]
       });
     }
-
-    if (!ukrainiec) {
-      return res.status(403).json({
-        error: 'Tylko dla zweryfikowanych Ukraińców'
-      });
-    }
-
-    const scraper = new LufthansaScraper();
-    const flights = await scraper.getFlightsByCities(departure, arrival, departureDate, returnDate);
-
-    res.json({
-      success: true,
-      count: flights.length,
-      flights,
-      searchParams: { departure, arrival, departureDate, returnDate }
-    });
   } catch (error) {
-    console.error('Błąd podczas wyszukiwania lotów (Lufthansa):', error);
-    res.status(500).json({
-      error: 'Wystąpił błąd podczas wyszukiwania lotów (Lufthansa)',
-      details: error.message
+    console.log('OpenSky API niedostępny, używam danych testowych');
+  }
+  
+  // Mock data jako fallback
+  const mockFlights = {
+    'LO123': { latitude: 52.0, longitude: 19.0, altitude: 10000, velocity: 450, heading: 180, onGround: false, verticalRate: 5 },
+    'FR456': { latitude: 51.5, longitude: 0.1, altitude: 8000, velocity: 420, heading: 90, onGround: false, verticalRate: 3 },
+    'TK789': { latitude: 41.0, longitude: 29.0, altitude: 11000, velocity: 480, heading: 270, onGround: false, verticalRate: 2 }
+  };
+  
+  if (mockFlights[flightNumber]) {
+    return res.json({
+      flightNumber: flightNumber,
+      ...mockFlights[flightNumber],
+      icao24: 'N/A'
     });
   }
+  
+  return res.status(404).json({ 
+    error: 'Lot nie znaleziony. Dostępne loty testowe: LO123, FR456, TK789' 
+  });
 });
 
 app.listen(port, () => {
