@@ -87,7 +87,8 @@ Responsywność – działa na telefonach i desktopie.
 
 
 
-Konfiguracja
+
+**Konfiguracja**
 
 Tworzenie bazy danych mongo 
 
