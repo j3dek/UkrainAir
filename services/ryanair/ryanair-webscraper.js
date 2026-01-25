@@ -1,12 +1,13 @@
 const {chromium}= require('playwright');
 const fs = require('fs');
+const path = require('path');
 class RyanairScraper {
     constructor() {
         this.browser = null;
     }
     async getCityCodeFromCsv(from,to) {
         
-        const data = fs.readFileSync('services/ryanair/plik_filtered.csv', 'utf8');
+        const data = fs.readFileSync(path.join(__dirname, 'plik_filtered.csv'), 'utf8');
         const lines = data.split('\n');
 
         //Bedzie kilka wynikow wiec musimy wrzucic do tablicy i bedziemy porownywac ceny ze wszystkich mozliwych lotnisk
@@ -133,8 +134,6 @@ class RyanairScraper {
         }
     }
     async getFlightsByCities (from, to, date_depart, date_return){
-        date_depart = date_depart;
-        date_return = date_return;
         let codes = await this.getCityCodeFromCsv(from,to);
         console.log(codes);
         let fromCodes = codes.fromCodes;
