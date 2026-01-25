@@ -66,14 +66,16 @@ według czasu trwania.
 Każda oferta zawiera link „Kup bilet”, który prowadzi na oficjalną stronę linii lotniczej lub partnera.
 
 Możliwość otwarcia w nowej karcie.
+5. Wyświetlanie lotów
+Po wpisaniu numeru lotu można zobaczyć gdzie się on znajduje na mapie
 
-💾 5. Historia wyszukiwań (opcjonalnie w MVP)
+💾 6. Historia wyszukiwań (opcjonalnie w MVP)
 
 Zapis ostatnich wyszukiwań użytkownika w localStorage lub w bazie danych.
 
 Ułatwia szybkie ponowne wyszukanie.
 
-🌐 6. Interfejs użytkownika (UI)
+🌐 7. Interfejs użytkownika (UI)
 
 Prosty i lekki design:
 
@@ -84,7 +86,6 @@ Lista wyników w formie kart,
 Filtry z boku lub na górze.
 
 Responsywność – działa na telefonach i desktopie.
-
 
 
 
