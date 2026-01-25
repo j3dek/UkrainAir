@@ -1,12 +1,23 @@
 <template>
   <div id="flight-app">
     <header class="header-section">
-      <FlightSearchForm />
+      <FlightSearchForm @flights-found="handleFlightsFound" @search-start="handleSearchStart" />
     </header>
 
     <main class="main-content">
-      <h2>Dostępne loty ({{ mockFlights.length }})</h2>
-      <ResultsList :flights="mockFlights" />
+      <div v-if="isLoading" class="loading-message">
+        <p>🔍 Wyszukiwanie lotów...</p>
+      </div>
+      <div v-else-if="errorMessage" class="error-message">
+        <p>{{ errorMessage }}</p>
+      </div>
+      <div v-else-if="flights.length > 0">
+        <h2>Dostępne loty ({{ flights.length }})</h2>
+        <ResultsList :flights="flights" />
+      </div>
+      <div v-else class="no-flights-message">
+        <p>Wprowadź parametry wyszukiwania i kliknij "Szukaj"</p>
+      </div>
     </main>
 
     <section class="ad-section">
@@ -30,12 +41,26 @@ export default {
   },
   data() {
     return {
-      mockFlights: [
-        { id: 1, from: 'WAW', to: 'KRK', time: '08:00', price: 300, airline: 'LOT' },
-        { id: 2, from: 'GDK', to: 'WRC', time: '12:30', price: 500, airline: 'Ryanair' },
-        { id: 3, from: 'WAW', to: 'PZN', time: '16:00', price: 200, airline: 'Wizz' },
-        { id: 4, from: 'PZN', to: 'GDK', time: '20:15', price: 500, airline: 'LOT' },
-      ]
+      flights: [],
+      isLoading: false,
+      errorMessage: ''
+    }
+  },
+  methods: {
+    handleSearchStart() {
+      this.isLoading = true;
+      this.errorMessage = '';
+      this.flights = [];
+    },
+    handleFlightsFound(data) {
+      this.isLoading = false;
+      if (data.error) {
+        this.errorMessage = data.error;
+        this.flights = [];
+      } else {
+        this.flights = data.flights || [];
+        this.errorMessage = this.flights.length === 0 ? 'Brak dostępnych lotów dla wybranych parametrów' : '';
+      }
     }
   }
 }
@@ -55,6 +80,28 @@ export default {
     margin-bottom: 15px;
     color: #333;
     margin: 10px;
+}
+
+.loading-message {
+  text-align: center;
+  padding: 40px;
+  font-size: 1.2em;
+  color: #666;
+}
+
+.error-message {
+  text-align: center;
+  padding: 20px;
+  color: #d32f2f;
+  background: #ffebee;
+  border-radius: 8px;
+  margin: 10px;
+}
+
+.no-flights-message {
+  text-align: center;
+  padding: 40px;
+  color: #666;
 }
 
 .ad-section {

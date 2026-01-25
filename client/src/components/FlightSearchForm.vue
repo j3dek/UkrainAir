@@ -117,7 +117,9 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, defineEmits } from 'vue';
+
+const emit = defineEmits(['flights-found', 'search-start']);
 
 const formState = reactive({
     departureCity: '',
@@ -239,7 +241,7 @@ const submitForm = async () => {
         ukrainiec: formState.isUkrainian
     };
 
-    
+    emit('search-start');
 
     try {
         
@@ -257,17 +259,14 @@ const submitForm = async () => {
         }
 
         const data = await response.json();
-        console.log(data);
+        console.log('Otrzymane loty:', data);
         
-        if (data.flights && data.flights.length > 0) {
-            alert(`Znaleziono`);
-        } else {
-            alert('Nie ma');
-        }
+        emit('flights-found', { flights: data.flights || [] });
 
     } catch (error) {
         console.error('Błąd podczas wysyłania zapytania:', error);
         errorMessage.value = error.message || 'Wystąpił błąd podczas wyszukiwania lotów. Spróbuj ponownie.';
+        emit('flights-found', { error: errorMessage.value, flights: [] });
     }
 };
 </script>

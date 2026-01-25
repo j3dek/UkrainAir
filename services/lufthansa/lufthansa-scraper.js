@@ -26,7 +26,7 @@ class LufthansaPlaywrightScraper {
     const page = await context.newPage();
 
     try {
-      await page.goto('https://www.lufthansa.com/pl/pl/homepage', {
+      await page.goto('https://www.lufthansa.com/pl/en/homepage', {
         waitUntil: 'domcontentloaded',
       });
 
@@ -63,41 +63,134 @@ class LufthansaPlaywrightScraper {
       'input[name="flightQuery.flightSegments[0].destinationCode"]';
     const dateRangeInputSelector =
       'input[id$="flightQuery.flightSegments[0].travelDatetime-input"]';
-    const dateDepartureDate = 'input[title="Data wylotu"][name="enter-date"]';
-    const dateReturnDate = 'input[title="Data powrotu"][name="enter-date"]';
+    // Obsługa zarówno polskich jak i angielskich tytułów
+    const dateDepartureSelectors = [
+      'input[title="Data wylotu"][name="enter-date"]',
+      'input[title="Departure date"][name="enter-date"]',
+      'input[name="enter-date"]:first-of-type'
+    ];
+    const dateReturnSelectors = [
+      'input[title="Data powrotu"][name="enter-date"]',
+      'input[title="Return date"][name="enter-date"]',
+      'input[name="enter-date"]:last-of-type'
+    ];
     const searchButtonSelector = 'button[type="submit"].button.maui.lh.primary';
-    const exitDateRangeInputSelector = 'maui-link-button[aria-label="Zamknij"]';
+    const exitDateRangeSelectors = [
+      'maui-link-button[aria-label="Zamknij"]',
+      'maui-link-button[aria-label="Close"]',
+      'button[aria-label="Zamknij"]',
+      'button[aria-label="Close"]'
+    ];
 
-    await page.waitForSelector(originInputSelector, { timeout: 15000 });
+    try {
+      await page.waitForSelector(originInputSelector, { timeout: 15000 });
+    } catch (err) {
+      console.log('Nie znaleziono formularza, próbuję odświeżyć...');
+      await page.reload();
+      await this.randomDelay(2000, 3000);
+      await page.waitForSelector(originInputSelector, { timeout: 15000 });
+    }
 
+    // Wyczyść i wypełnij pole wylotu - ważne bo Lufthansa auto-wypełnia na podstawie lokalizacji
+    console.log(`Ustawiam miasto wylotu: ${fromCity}`);
     await page.click(originInputSelector, { clickCount: 3 });
-    await page.fill(originInputSelector, fromCity);
-    await this.randomDelay(500, 800);
+    await this.randomDelay(200, 400);
+    // Wyczyść pole całkowicie
+    await page.keyboard.press('Control+A');
+    await page.keyboard.press('Backspace');
+    await this.randomDelay(200, 400);
+    // Wpisz miasto
+    await page.type(originInputSelector, fromCity, { delay: 100 });
+    await this.randomDelay(800, 1200);
+    // Poczekaj na dropdown z sugestiami i wybierz pierwszą opcję
+    try {
+      await page.waitForSelector('ul[role="listbox"] li, .autocomplete-results li, [class*="suggestion"]', { timeout: 5000 });
+      await this.randomDelay(300, 500);
+      await page.keyboard.press('ArrowDown');
+      await this.randomDelay(200, 300);
+    } catch (e) {
+      console.log('Brak dropdown sugestii, kontynuuję...');
+    }
     await page.keyboard.press('Enter');
     await this.randomDelay(500, 800);
 
+    // Wyczyść i wypełnij pole przylotu
+    console.log(`Ustawiam miasto przylotu: ${toCity}`);
     await page.click(destinationInputSelector, { clickCount: 3 });
-    await page.fill(destinationInputSelector, toCity);
-    await this.randomDelay(500, 800);
+    await this.randomDelay(200, 400);
+    await page.keyboard.press('Control+A');
+    await page.keyboard.press('Backspace');
+    await this.randomDelay(200, 400);
+    await page.type(destinationInputSelector, toCity, { delay: 100 });
+    await this.randomDelay(800, 1200);
+    try {
+      await page.waitForSelector('ul[role="listbox"] li, .autocomplete-results li, [class*="suggestion"]', { timeout: 5000 });
+      await this.randomDelay(300, 500);
+      await page.keyboard.press('ArrowDown');
+      await this.randomDelay(200, 300);
+    } catch (e) {
+      console.log('Brak dropdown sugestii, kontynuuję...');
+    }
     await page.keyboard.press('Enter');
     await this.randomDelay(500, 800);
 
     await page.click(dateRangeInputSelector);
     await this.randomDelay(500, 800);
 
-    await page.click(dateDepartureDate);
-    await page.fill(dateDepartureDate, departureDate);
-    await this.randomDelay(300, 500);
-    await page.keyboard.press('Enter');
+    // Znajdź i wypełnij datę wylotu
+    let departureDateFilled = false;
+    for (const selector of dateDepartureSelectors) {
+      try {
+        const el = page.locator(selector).first();
+        await el.waitFor({ state: 'visible', timeout: 3000 });
+        await el.click();
+        await el.fill(departureDate);
+        await this.randomDelay(300, 500);
+        await page.keyboard.press('Enter');
+        departureDateFilled = true;
+        console.log(`Data wylotu wypełniona przez: ${selector}`);
+        break;
+      } catch (e) {
+        // Próbuj następny selector
+      }
+    }
+    if (!departureDateFilled) {
+      throw new Error('Nie udało się wypełnić daty wylotu');
+    }
     await this.randomDelay(500, 800);
 
-    await page.click(dateReturnDate);
-    await page.fill(dateReturnDate, returnDate);
-    await this.randomDelay(300, 500);
-    await page.keyboard.press('Enter');
+    // Znajdź i wypełnij datę powrotu
+    let returnDateFilled = false;
+    for (const selector of dateReturnSelectors) {
+      try {
+        const el = page.locator(selector).first();
+        await el.waitFor({ state: 'visible', timeout: 3000 });
+        await el.click();
+        await el.fill(returnDate);
+        await this.randomDelay(300, 500);
+        await page.keyboard.press('Enter');
+        returnDateFilled = true;
+        console.log(`Data powrotu wypełniona przez: ${selector}`);
+        break;
+      } catch (e) {
+        // Próbuj następny selector
+      }
+    }
+    if (!returnDateFilled) {
+      console.log('Nie udało się wypełnić daty powrotu, kontynuuję...');
+    }
     await this.randomDelay(500, 800);
 
-    await page.click(exitDateRangeInputSelector);
+    // Zamknij modal kalendarza
+    for (const selector of exitDateRangeSelectors) {
+      try {
+        await page.click(selector, { timeout: 2000 });
+        console.log(`Zamknięto kalendarz przez: ${selector}`);
+        break;
+      } catch (e) {
+        // Próbuj następny selector
+      }
+    }
     await this.randomDelay(500, 800);
 
     console.log('Klikam szukaj i czekam na stronę wyników...');
@@ -111,18 +204,17 @@ class LufthansaPlaywrightScraper {
 
     await this.waitForFlightsToLoad(page);
 
-    // const selectedDayInfo = await this.getSelectedDayInfo(page);
-    // console.log('Zaznaczony dzień:', selectedDayInfo);
+    const selectedDayInfo = await this.getSelectedDayInfo(page);
+    console.log('Zaznaczony dzień:', selectedDayInfo);
 
-    // const flights = await this.scrapeFlightsFromCurrentView(page, {
-    //   fromCity,
-    //   toCity,
-    //   departureDate,
-    //   returnDate,
-    // }, selectedDayInfo);
+    const flights = await this.scrapeFlightsFromCurrentView(page, {
+      fromCity,
+      toCity,
+      departureDate,
+      returnDate,
+    }, selectedDayInfo);
 
-    // return flights;
-    return 1;
+    return flights;
   }
 
   async waitForFlightsToLoad(page) {

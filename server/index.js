@@ -8,7 +8,7 @@ const port = process.env.PORT || 3000
 require('./router/database'); // Import połączenia z MongoDB
 const { addUser, getUsers, loginUser } = require('./controller/user');
 const { scrapeFlights } = require('../services/ryanair/ryanair-webscraper');
-const { LufthansaScraper } = require('../services/lufthansa/lufthansa-scraper');
+const { LufthansaPlaywrightScraper } = require('../services/lufthansa/lufthansa-scraper');
 const { TurkishPlaywrightScraper } = require('../services/turkish/turkish-scraper');
 
 // Configure CORS - allow all origins in development
@@ -64,19 +64,69 @@ app.post('/api/flights/search', async (req, res) => {
 
         // console.log(`Szukam lotów: ${departure} -> ${arrival}, ${departureDate} - ${returnDate || 'bez powrotu'}`);
 
-        // Wywołaj scraper
-        const scraper = new LufthansaScraper();
-        const Ryanairflights = await scrapeFlights(departure, arrival, departureDate, returnDate);
-        const lufthansaFlights = await scraper.getFlightsByCities(departure, arrival, departureDate, returnDate);
-        const scraper2 = new TurkishPlaywrightScraper();
-        const TurkishFlights = await scraper2.getFlightsByCities(departure, arrival, departureDate, returnDate);
-        
-        // Połącz wszystkie loty z trzech źródeł
-        const flights = [
-            ...(Array.isArray(Ryanairflights) ? Ryanairflights : []),
-            ...(Array.isArray(lufthansaFlights) ? lufthansaFlights : []),
-            ...(Array.isArray(TurkishFlights) ? TurkishFlights : [])
-        ];
+        // Konwersja dat do różnych formatów
+        // Frontend wysyła YYYY-MM-DD, Ryanair potrzebuje YYYY-MM-DD, Turkish/Lufthansa potrzebują DD.MM.YYYY
+        const convertToEuropeanFormat = (dateStr) => {
+            if (!dateStr) return dateStr;
+            // Jeśli już jest w formacie DD.MM.YYYY, zwróć bez zmian
+            if (dateStr.includes('.')) return dateStr;
+            // Konwertuj YYYY-MM-DD na DD.MM.YYYY
+            const [year, month, day] = dateStr.split('-');
+            return `${day}.${month}.${year}`;
+        };
+
+        const departureDateEU = convertToEuropeanFormat(departureDate);
+        const returnDateEU = returnDate ? convertToEuropeanFormat(returnDate) : departureDateEU;
+
+        console.log(`Szukam lotów: ${departure} -> ${arrival}`);
+        console.log(`Daty: ${departureDate} (EU: ${departureDateEU}) - ${returnDate || 'brak'} (EU: ${returnDateEU})`);
+
+        // Wywołaj scrapery równolegle - każdy w osobnym try-catch
+        const scraperResults = await Promise.allSettled([
+            // Ryanair - używa formatu YYYY-MM-DD
+            (async () => {
+                try {
+                    console.log('Ryanair: start...');
+                    const flights = await scrapeFlights(departure, arrival, departureDate, returnDate || departureDate);
+                    console.log(`Ryanair: znaleziono ${flights?.length || 0} lotów`);
+                    return Array.isArray(flights) ? flights : [];
+                } catch (err) {
+                    console.error('Błąd Ryanair scraper:', err.message);
+                    return [];
+                }
+            })(),
+            // Lufthansa - używa formatu DD.MM.YYYY
+            (async () => {
+                try {
+                    console.log('Lufthansa: start...');
+                    const scraper = new LufthansaPlaywrightScraper();
+                    const flights = await scraper.getFlightsByCities(departure, arrival, departureDateEU, returnDateEU);
+                    console.log(`Lufthansa: znaleziono ${flights?.length || 0} lotów`);
+                    return Array.isArray(flights) ? flights : [];
+                } catch (err) {
+                    console.error('Błąd Lufthansa scraper:', err.message);
+                    return [];
+                }
+            })(),
+            // Turkish Airlines - używa formatu DD.MM.YYYY
+            (async () => {
+                try {
+                    console.log('Turkish: start...');
+                    const scraper = new TurkishPlaywrightScraper();
+                    const flights = await scraper.getFlightsByCities(departure, arrival, departureDateEU, returnDateEU);
+                    console.log(`Turkish: znaleziono ${flights?.length || 0} lotów`);
+                    return Array.isArray(flights) ? flights : [];
+                } catch (err) {
+                    console.error('Błąd Turkish scraper:', err.message);
+                    return [];
+                }
+            })()
+        ]);
+
+        // Zbierz wyniki ze wszystkich scraperów
+        const flights = scraperResults
+            .filter(result => result.status === 'fulfilled')
+            .flatMap(result => result.value);
 
         res.json({
             success: true,
