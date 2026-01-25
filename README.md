@@ -90,7 +90,7 @@ Responsywność – działa na telefonach i desktopie.
 
 **Konfiguracja**
 
-Tworzenie bazy danych mongo 
+Tworzenie bazy danych mongo w dockerze
 
 *docker run -d --name mongo -p 27017:27017 mongo:latest*
 
