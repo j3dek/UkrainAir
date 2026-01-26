@@ -7,9 +7,9 @@
           </div>
 
       <nav class="nav">
-        <a class="nav-link" href="#/">Strona główna</a>
-        <a class="nav-link" href="#/about">O nas</a>
-        <a class="nav-link" href="#/saved">Zapisane</a>
+        <RouterLink class="nav-link" to="/">Strona główna</RouterLink>
+        <RouterLink class="nav-link" to="/flights">Loty</RouterLink>
+        <RouterLink class="nav-link" to="/flight-tracker">🗺️ Śledzenie lotów</RouterLink>
       </nav>
 
       <div class="actions">

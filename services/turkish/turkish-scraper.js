@@ -122,36 +122,75 @@ class TurkishPlaywrightScraper {
     const targetMonthLong = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][monthNum - 1];
     
     const targetMonthYear = `${targetMonthLong} ${year}`;
+    // Format z zerem wiodącym dla dni < 10
+    const dayPadded = day.toString().padStart(2, '0');
     const targetTooltipSubstring = `${targetMonthShort} ${day} ${year}`;
+    const targetTooltipSubstring2 = `${targetMonthShort} ${dayPadded} ${year}`;
 
     console.log(targetMonthYear);
     console.log(targetTooltipSubstring);
-    await page.waitForSelector('.hm__style_calendar-modal-wrapper__3QAFq', { timeout: 15000 });
+    
+    try {
+      await page.waitForSelector('.hm__style_calendar-modal-wrapper__3QAFq', { timeout: 15000 });
+    } catch {
+      console.log('Calendar wrapper not found, trying alternative...');
+    }
     console.log(`Selecting date: ${dateStr}`);
 
-    while (true) {
-      const firstMonthLocator = page.locator('.hm__style_monthLabel__7gHka').first();
-      await firstMonthLocator.waitFor({ state: 'visible' });
-      const visibleMonth = await firstMonthLocator.innerText();
+    // Nawigacja do odpowiedniego miesiąca
+    let attempts = 0;
+    while (attempts < 12) {
+      attempts++;
+      try {
+        const firstMonthLocator = page.locator('.hm__style_monthLabel__7gHka').first();
+        await firstMonthLocator.waitFor({ state: 'visible', timeout: 5000 });
+        const visibleMonth = await firstMonthLocator.innerText();
 
-      if (visibleMonth.includes(targetMonthYear)) {
-        console.log(`Found target month: ${targetMonthYear}`);
+        if (visibleMonth.includes(targetMonthYear)) {
+          console.log(`Found target month: ${targetMonthYear}`);
+          break;
+        }
+        
+        console.log(`Current month: ${visibleMonth}. Navigating to next...`);
+        await page.getByRole('button', { name: 'Go to the next month' }).click();
+        await this.randomDelay(300, 600);
+      } catch (err) {
+        console.log('Error navigating months:', err.message);
         break;
       }
-      
-      console.log(`Current month: ${visibleMonth}. Navigating to next...`);
-      await page.getByRole('button', { name: 'Go to the next month' }).click();
-      await this.randomDelay(300, 600);
     }
     
-    const dayTooltipSelector = `span[data-tooltip*="${targetTooltipSubstring}"]`;
-    console.log(`Looking for day with selector: ${dayTooltipSelector}`);
+    // Próbuj różne selektory dla dnia
+    const daySelectors = [
+      `span[data-tooltip*="${targetTooltipSubstring}"]`,
+      `span[data-tooltip*="${targetTooltipSubstring2}"]`,
+      `button[aria-label*="${targetMonthShort} ${day}"]`,
+      `td[aria-label*="${targetMonthShort} ${day}"]`
+    ];
     
-    const dayTooltip = page.locator(dayTooltipSelector);
+    for (const selector of daySelectors) {
+      try {
+        console.log(`Trying selector: ${selector}`);
+        const dayElement = page.locator(selector).first();
+        await dayElement.waitFor({ state: 'visible', timeout: 3000 });
+        await dayElement.click({ force: true });
+        console.log(`Successfully clicked day with selector: ${selector}`);
+        await this.randomDelay(400, 700);
+        return;
+      } catch {
+        console.log(`Selector not found: ${selector}`);
+      }
+    }
     
-    await dayTooltip.locator('..').click();
+    // Fallback - spróbuj kliknąć dzień po tekście
+    try {
+      const dayButton = page.getByRole('button', { name: new RegExp(`${day}.*${targetMonthShort}|${targetMonthShort}.*${day}`, 'i') });
+      await dayButton.click({ timeout: 5000 });
+      console.log('Clicked day using role button');
+    } catch {
+      console.log('Could not find day button, continuing anyway...');
+    }
     
-    console.log(`Successfully clicked day based on tooltip: ${targetTooltipSubstring}`);
     await this.randomDelay(400, 700);
   }
 
